@@ -1,0 +1,7 @@
+name: InfuseS1
+version: '0.0.1'
+main: uk.sleepylux.infuseS1.Main
+api-version: '1.21'
+prefix: InfuseS1
+authors: [ TirednHigh ]
+description: Infuse S1 Remake for your enjoyment!
