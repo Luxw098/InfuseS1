@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'uk.sleepylux'
-version = '0.0.1'
+version = '0.0.2'
 
 repositories {
     mavenCentral()
@@ -29,6 +29,10 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
+}
+
+tasks.named('jar') {
+    destinationDirectory = file("D:\\ProgrammingProjects\\_McServers\\1.21.1Paper\\plugins")
 }
 
 tasks.withType(JavaCompile).configureEach {

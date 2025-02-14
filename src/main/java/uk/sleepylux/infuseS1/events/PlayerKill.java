@@ -55,7 +55,7 @@ public class PlayerKill implements Listener {
              attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Congrats, You no longer have" + ChatColor.RED + negativeEffect.getType());
         } else {
             List<PotionEffectType> positiveEffectMask = Effects.positiveEffects.stream()
-                    .filter(positiveEffectType -> currentEffects.stream()
+                    .filter(positiveEffectType -> !currentEffects.stream()
                             .map(PotionEffect::getType).toList().contains(positiveEffectType)).toList();
 
             PotionEffectType positiveEffectType = positiveEffectMask.get(random.nextInt(positiveEffectMask.size()));
