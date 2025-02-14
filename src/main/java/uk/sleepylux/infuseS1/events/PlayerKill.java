@@ -11,7 +11,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -25,11 +24,11 @@ import uk.sleepylux.infuseS1.registry.Effects;
 import java.util.List;
 import java.util.Random;
 
-public class PlayerDeath implements Listener {
+public class PlayerKill implements Listener {
 
 
     private final Main plugin;
-    public PlayerDeath(Main plugin) {
+    public PlayerKill(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -45,8 +44,8 @@ public class PlayerDeath implements Listener {
         if (!(attackerEntity instanceof Player attacker)) return;
         Random random = new Random();
 
-        List<PotionEffect> currentEffects = new java.util.ArrayList<>((attacker.getActivePotionEffects().stream()
-                .filter(potionEffect -> potionEffect.getDuration() != -1).toList()));
+        List<PotionEffect> currentEffects = new java.util.ArrayList<>(attacker.getActivePotionEffects().stream()
+                .filter(potionEffect -> potionEffect.getDuration() != -1).toList());
 
         List<PotionEffect> effectNegativeMask = currentEffects.stream()
                 .filter(potionEffect -> Effects.negativeEffects.contains(potionEffect.getType())).toList();
@@ -55,12 +54,13 @@ public class PlayerDeath implements Listener {
              attacker.removePotionEffect(negativeEffect.getType());
              attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Congrats, You no longer have" + ChatColor.RED + negativeEffect.getType());
         } else {
-            List<PotionEffectType> assignableEffects = new java.util.ArrayList<>(Effects.positiveEffects);
-            assignableEffects.removeIf(currentEffects.stream().map(PotionEffect::getType).toList()::contains);
+            List<PotionEffectType> positiveEffectMask = Effects.positiveEffects.stream()
+                    .filter(positiveEffectType -> currentEffects.stream()
+                            .map(PotionEffect::getType).toList().contains(positiveEffectType)).toList();
 
-            PotionEffectType assignableEffectType = assignableEffects.get(random.nextInt(assignableEffects.size()));
+            PotionEffectType positiveEffectType = positiveEffectMask.get(random.nextInt(positiveEffectMask.size()));
 
-            PotionEffect positiveEffect = new PotionEffect(assignableEffectType, PotionEffect.INFINITE_DURATION, 1, true, false);
+            PotionEffect positiveEffect = new PotionEffect(positiveEffectType, PotionEffect.INFINITE_DURATION, 1, true, false);
             attacker.addPotionEffect(positiveEffect);
             attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You have been awarded " + ChatColor.GREEN + positiveEffect.getType() + ChatColor.GOLD + " for your kill!");
         }
