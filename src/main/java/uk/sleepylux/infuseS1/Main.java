@@ -7,10 +7,15 @@ You should have received a copy of the GNU General Public License along with Inf
 
 package uk.sleepylux.infuseS1;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.plugin.java.JavaPlugin;
 import uk.sleepylux.infuseS1.events.MilkDrink;
 import uk.sleepylux.infuseS1.events.PlayerDeath;
+import uk.sleepylux.infuseS1.events.PlayerJoin;
 import uk.sleepylux.infuseS1.events.PlayerKill;
+
+import java.util.Objects;
 
 public final class Main extends JavaPlugin {
 
@@ -20,6 +25,7 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
 
         // I forgot to add these in the previous commits lol
+        getServer().getPluginManager().registerEvents(new PlayerJoin(this), this);
         getServer().getPluginManager().registerEvents(new PlayerDeath(this), this);
         getServer().getPluginManager().registerEvents(new PlayerKill(this), this);
         getServer().getPluginManager().registerEvents(new MilkDrink(this), this);

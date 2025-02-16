@@ -2,24 +2,50 @@ package uk.sleepylux.infuseS1.registry;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.potion.PotionEffect;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import uk.sleepylux.infuseS1.Main;
+import uk.sleepylux.infuseS1.wrappers.PotionEffectWrapper;
 
 import java.lang.reflect.Type;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataTable {
     private static final Gson gson = new Gson();
-    public static Map<String, List<PotionEffect>> get(FileConfiguration config) {
-        Type type = new TypeToken<Map<String, List<PotionEffect>>>() {}.getType();
-        String byteTableString = new String(Base64.getDecoder().decode(config.getString("DataTable")));
-        return gson.fromJson(byteTableString, type);
+
+    @NonNull
+    public static Map<String, List<PotionEffect>> get(Main plugin) {
+
+        Type type = new TypeToken<Map<String, List<PotionEffectWrapper>>>() {}.getType();
+        String encodedDatatable = plugin.getConfig().getString("DataTable");
+        if (encodedDatatable == null) encodedDatatable = Base64.getEncoder().encodeToString(gson.toJson("{}").getBytes());
+        String byteTableString = new String(Base64.getDecoder().decode(encodedDatatable));
+
+        Map<String, List<PotionEffectWrapper>> datatableRaw = gson.fromJson(byteTableString, type);
+        if (datatableRaw == null) datatableRaw = Map.of();
+        Map<String, List<PotionEffect>> datatable = new HashMap<>();
+        for (Map.Entry<String, List<PotionEffectWrapper>> entry : datatableRaw.entrySet()) {
+            List<PotionEffect> effects = new ArrayList<>();
+            for (PotionEffectWrapper effectWrapper : entry.getValue())
+                effects.add(effectWrapper.toPotionEffect());
+            datatable.put(entry.getKey(), effects);
+        }
+        return datatable;
     }
-    public static void set(FileConfiguration config, Map<String, List<PotionEffect>> datatable) {
-        String parsedMap = gson.toJson(datatable);
+
+    public static void set(Main plugin, Map<String, List<PotionEffect>> datatable) {
+        Type type = new TypeToken<Map<String, List<PotionEffectWrapper>>>() {}.getType();
+        Map<String, List<PotionEffectWrapper>> wrapper = new HashMap<>();
+        for (Map.Entry<String, List<PotionEffect>> entry : datatable.entrySet()) {
+            List<PotionEffectWrapper> effectWrappers = new ArrayList<>();
+            for (PotionEffect effect : entry.getValue())
+                effectWrappers.add(new PotionEffectWrapper(effect));
+            wrapper.put(entry.getKey(), effectWrappers);
+        }
+        String parsedMap = gson.toJson(wrapper, type);
         String encodedString = Base64.getEncoder().encodeToString(parsedMap.getBytes());
-        config.set("DataTable", encodedString);
+        plugin.getConfig().set("DataTable", encodedString);
+        plugin.saveConfig();
+        plugin.getLogger().info("Updated config");
     }
 }

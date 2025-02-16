@@ -14,23 +14,25 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class Effects {
     public static Collection<PotionEffectType> positiveEffects (FileConfiguration config) {
         List<String> configEffects = config.getStringList("PositiveEffects");
         return configEffects.stream().map(configEffect -> {
-            NamespacedKey key = NamespacedKey.fromString(configEffect);
+            NamespacedKey key = NamespacedKey.fromString("minecraft:" + configEffect.toLowerCase());
             if (key == null) return null;
             return SimpleRegistry.EFFECT.get(key);
-        }).toList();
+        }).filter(Objects::nonNull).toList();
     }
     public static Collection<PotionEffectType> negativeEffects(FileConfiguration config) {
         List<String> configEffects = config.getStringList("NegativeEffects");
         return configEffects.stream().map(configEffect -> {
-            NamespacedKey key = NamespacedKey.fromString(configEffect);
+            NamespacedKey key = NamespacedKey.fromString("minecraft:" + configEffect.toLowerCase());
             if (key == null) return null;
             return SimpleRegistry.EFFECT.get(key);
-        }).toList();
+
+        }).filter(Objects::nonNull).toList();
     }
 
 }
