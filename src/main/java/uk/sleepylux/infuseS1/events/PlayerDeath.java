@@ -8,36 +8,57 @@ You should have received a copy of the GNU General Public License along with Inf
 package uk.sleepylux.infuseS1.events;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import uk.sleepylux.infuseS1.Main;
+import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 
-import java.util.List;
-import java.util.Random;
+import javax.xml.crypto.Data;
+import java.time.Duration;
+import java.util.*;
 
 public class PlayerDeath implements Listener {
+    private final Main plugin;
+    public PlayerDeath(Main plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        FileConfiguration config = plugin.getConfig();
+
         Player player = event.getPlayer();
 
-        @SuppressWarnings("unchecked")
-        List<PotionEffect> currentEffects = (List<PotionEffect>) player.getMetadata("potionEffects").getFirst().value();
-        if (currentEffects == null || currentEffects.isEmpty()) return;
+        Map<String, List<PotionEffect>> datatable = DataTable.get(config);
+        List<PotionEffect> currentEffects = datatable.get(player.getUniqueId().toString());
+        if (currentEffects.size() == Effects.negativeEffects(config).size()) {
+            player.ban(ChatColor.RED + "You died with all possible negative effects, You are eliminated.",
+                    Duration.ofDays(999), ChatColor.BLUE + "Maybe try a revive beacon?");
+            plugin.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.RESET
+                    + player.getDisplayName() + ChatColor.GOLD + " Has been eliminated!");
+
+            datatable.remove(player.getUniqueId().toString());
+            DataTable.set(config, datatable);
+            plugin.saveConfig();
+            return;
+        }
+
         Random random = new Random();
 
-
         List<PotionEffect> positiveEffectsMask = currentEffects.stream()
-                .filter(potionEffect -> Effects.positiveEffects.contains(potionEffect.getType())).toList();
+                .filter(potionEffect -> Effects.positiveEffects(config).contains(potionEffect.getType())).toList();
         if (!positiveEffectsMask.isEmpty()) {
             PotionEffect positiveEffect = positiveEffectsMask.get(random.nextInt(positiveEffectsMask.size()));
             currentEffects.remove(positiveEffect);
             player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Due to your death, " + ChatColor.GREEN + positiveEffect.getType() + ChatColor.GOLD + " has been removed");
         } else {
-            List<PotionEffectType> negativeEffectsMask = Effects.negativeEffects.stream()
+            List<PotionEffectType> negativeEffectsMask = Effects.negativeEffects(config).stream()
                     .filter(negativeEffect -> !currentEffects.stream()
                             .map(PotionEffect::getType).toList().contains(negativeEffect)).toList();
             PotionEffectType negativeEffectType = negativeEffectsMask.get(random.nextInt(negativeEffectsMask.size()));

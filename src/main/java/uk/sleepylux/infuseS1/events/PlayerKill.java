@@ -8,25 +8,25 @@ You should have received a copy of the GNU General Public License along with Inf
 package uk.sleepylux.infuseS1.events;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import uk.sleepylux.infuseS1.Main;
+import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class PlayerKill implements Listener {
-
-
     private final Main plugin;
     public PlayerKill(Main plugin) {
         this.plugin = plugin;
@@ -34,27 +34,28 @@ public class PlayerKill implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        EntityDamageEvent damageEvent = player.getLastDamageCause();
+        FileConfiguration config = plugin.getConfig();
 
-        if (damageEvent == null
-            || damageEvent.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return;
+        Player victim = event.getEntity();
+        Entity killer = victim.getKiller();
+        EntityDamageEvent cause = victim.getLastDamageCause();
+        if ((config.getBoolean("ActivateUponDeathByPlayer") && victim.getKiller() == null)
+            && (config.getBoolean("ActivateUponDeathByMob") && cause != null && cause.getCause() == DamageCause.ENTITY_ATTACK)) return;
 
-        Entity attackerEntity = ((EntityDamageByEntityEvent) damageEvent).getDamager();
-        if (!(attackerEntity instanceof Player attacker)) return;
+        if (!(killer instanceof Player attacker)) return;
         Random random = new Random();
 
         List<PotionEffect> currentEffects = new java.util.ArrayList<>(attacker.getActivePotionEffects().stream()
                 .filter(potionEffect -> potionEffect.getDuration() != -1).toList());
 
         List<PotionEffect> effectNegativeMask = currentEffects.stream()
-                .filter(potionEffect -> Effects.negativeEffects.contains(potionEffect.getType())).toList();
+                .filter(potionEffect -> Effects.negativeEffects(config).contains(potionEffect.getType())).toList();
         if (!effectNegativeMask.isEmpty()) {
              PotionEffect negativeEffect = effectNegativeMask.get(random.nextInt(effectNegativeMask.size()));
              attacker.removePotionEffect(negativeEffect.getType());
              attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Congrats, You no longer have" + ChatColor.RED + negativeEffect.getType());
         } else {
-            List<PotionEffectType> positiveEffectMask = Effects.positiveEffects.stream()
+            List<PotionEffectType> positiveEffectMask = Effects.positiveEffects(config).stream()
                     .filter(positiveEffectType -> !currentEffects.stream()
                             .map(PotionEffect::getType).toList().contains(positiveEffectType)).toList();
 
@@ -65,7 +66,15 @@ public class PlayerKill implements Listener {
             attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You have been awarded " + ChatColor.GREEN + positiveEffect.getType() + ChatColor.GOLD + " for your kill!");
         }
 
-        List<PotionEffect> effects = (List<PotionEffect>) player.getActivePotionEffects();
-        event.getEntity().setMetadata("potionEffects", new FixedMetadataValue(plugin, effects));
+        List<PotionEffect> victimEffectMap = victim.getActivePotionEffects().stream()
+                .filter(potionEffect -> potionEffect.getDuration() == -1).toList();
+        List<PotionEffect> attackerEffectMap = attacker.getActivePotionEffects().stream()
+                .filter(potionEffect -> potionEffect.getDuration() == -1).toList();
+
+        Map<String, List<PotionEffect>> datatable = DataTable.get(config);
+        datatable.put(victim.getUniqueId().toString(), victimEffectMap);
+        datatable.put(attacker.getUniqueId().toString(), attackerEffectMap);
+        DataTable.set(config, datatable);
+        plugin.saveConfig();
     }
 }

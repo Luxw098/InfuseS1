@@ -7,18 +7,30 @@ You should have received a copy of the GNU General Public License along with Inf
 
 package uk.sleepylux.infuseS1.registry;
 
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry.SimpleRegistry;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Collection;
 import java.util.List;
 
 public class Effects {
-    public static final Collection<PotionEffectType> negativeEffects = List.of(PotionEffectType.UNLUCK, PotionEffectType.GLOWING,
-            PotionEffectType.WEAKNESS, PotionEffectType.MINING_FATIGUE, PotionEffectType.JUMP_BOOST,
-            PotionEffectType.SLOWNESS, PotionEffectType.SLOW_FALLING);
+    public static Collection<PotionEffectType> positiveEffects (FileConfiguration config) {
+        List<String> configEffects = config.getStringList("PositiveEffects");
+        return configEffects.stream().map(configEffect -> {
+            NamespacedKey key = NamespacedKey.fromString(configEffect);
+            if (key == null) return null;
+            return SimpleRegistry.EFFECT.get(key);
+        }).toList();
+    }
+    public static Collection<PotionEffectType> negativeEffects(FileConfiguration config) {
+        List<String> configEffects = config.getStringList("NegativeEffects");
+        return configEffects.stream().map(configEffect -> {
+            NamespacedKey key = NamespacedKey.fromString(configEffect);
+            if (key == null) return null;
+            return SimpleRegistry.EFFECT.get(key);
+        }).toList();
+    }
 
-    public static final Collection<PotionEffectType> positiveEffects = List.of(PotionEffectType.WATER_BREATHING, PotionEffectType.RESISTANCE,
-            PotionEffectType.STRENGTH, PotionEffectType.CONDUIT_POWER, PotionEffectType.HERO_OF_THE_VILLAGE,
-            PotionEffectType.HASTE, PotionEffectType.INVISIBILITY, PotionEffectType.REGENERATION,
-            PotionEffectType.SPEED, PotionEffectType.FIRE_RESISTANCE, PotionEffectType.DOLPHINS_GRACE);
 }

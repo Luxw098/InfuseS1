@@ -1,0 +1,29 @@
+
+ActivateUponDeathByPlayer: true
+ActivateUponDeathByMob: false
+
+PositiveEffects:
+  - "WATER_BREATHING"
+  - "RESISTANCE"
+  - "STRENGTH"
+  - "CONDUIT_POWER"
+  - "HERO_OF_THE_VILLAGE"
+  - "HASTE"
+  - "INVISIBILITY"
+  - "REGENERATION"
+  - "SPEED"
+  - "FIRE_RESISTANCE"
+  - "DOLPHINS_GRACE"
+
+NegativeEffects:
+  - "UNLUCK"
+  - "GLOWING"
+  - "WEAKNESS"
+  - "MINING_FATIGUE"
+  - "JUMP_BOOST"
+  - "SLOWNESS"
+  - "SLOW_FALLING"
+
+
+comment: "DO NOT CHANGE BELOW, IT IS THE ENCODED DATATABLE FOR TRACKING EFFECTS"
+DataTable: []
