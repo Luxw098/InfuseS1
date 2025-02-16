@@ -7,6 +7,7 @@ You should have received a copy of the GNU General Public License along with Inf
 
 package uk.sleepylux.infuseS1.events;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -19,7 +20,6 @@ import uk.sleepylux.infuseS1.Main;
 import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 
-import javax.xml.crypto.Data;
 import java.time.Duration;
 import java.util.*;
 
@@ -31,21 +31,21 @@ public class PlayerDeath implements Listener {
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
+        plugin.getLogger().info("PlayerDeath Called");
         FileConfiguration config = plugin.getConfig();
 
         Player player = event.getPlayer();
 
-        Map<String, List<PotionEffect>> datatable = DataTable.get(config);
-        List<PotionEffect> currentEffects = datatable.get(player.getUniqueId().toString());
+        Map<String, List<PotionEffect>> datatable = DataTable.get(plugin);
+        Collection<PotionEffect> currentEffects = datatable.get(player.getUniqueId().toString());
         if (currentEffects.size() == Effects.negativeEffects(config).size()) {
-            player.ban(ChatColor.RED + "You died with all possible negative effects, You are eliminated.",
-                    Duration.ofDays(999), ChatColor.BLUE + "Maybe try a revive beacon?");
+            player.ban(ChatColor.RED + "You died with all possible negative effects, You are eliminated.\n"
+                            + ChatColor.BLUE + "Maybe try a revive beacon?", Duration.ofDays(999), "");
             plugin.getServer().broadcastMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.RESET
                     + player.getDisplayName() + ChatColor.GOLD + " Has been eliminated!");
 
             datatable.remove(player.getUniqueId().toString());
-            DataTable.set(config, datatable);
-            plugin.saveConfig();
+            DataTable.set(plugin, datatable);
             return;
         }
 
@@ -56,7 +56,8 @@ public class PlayerDeath implements Listener {
         if (!positiveEffectsMask.isEmpty()) {
             PotionEffect positiveEffect = positiveEffectsMask.get(random.nextInt(positiveEffectsMask.size()));
             currentEffects.remove(positiveEffect);
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Due to your death, " + ChatColor.GREEN + positiveEffect.getType() + ChatColor.GOLD + " has been removed");
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Due to your death, " + ChatColor.GREEN +
+                    positiveEffect.getType().getKey().toString().split(":")[1] + ChatColor.GOLD + " has been removed");
         } else {
             List<PotionEffectType> negativeEffectsMask = Effects.negativeEffects(config).stream()
                     .filter(negativeEffect -> !currentEffects.stream()
@@ -64,8 +65,14 @@ public class PlayerDeath implements Listener {
             PotionEffectType negativeEffectType = negativeEffectsMask.get(random.nextInt(negativeEffectsMask.size()));
             PotionEffect negativeEffect = new PotionEffect(negativeEffectType, PotionEffect.INFINITE_DURATION, 1, true, false);
             currentEffects.add(negativeEffect);
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Due to your death, you now have " + ChatColor.RED +  negativeEffectType);
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Due to your death, you now have " +
+                    ChatColor.RED + negativeEffect.getType().getKey().toString().split(":")[1]);
         }
-        player.addPotionEffects(currentEffects);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            plugin.getLogger().info(currentEffects.toString());
+            player.addPotionEffects(currentEffects);
+        }, 5L);
+        datatable.put(player.getUniqueId().toString(), currentEffects.stream().toList());
+        DataTable.set(plugin, datatable);
     }
 }

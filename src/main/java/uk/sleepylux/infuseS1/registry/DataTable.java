@@ -10,7 +10,7 @@ import uk.sleepylux.infuseS1.wrappers.PotionEffectWrapper;
 import java.lang.reflect.Type;
 import java.util.*;
 
-public class DataTable {
+public final class DataTable {
     private static final Gson gson = new Gson();
 
     @NonNull

@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-public class Effects {
+public final class Effects {
     public static Collection<PotionEffectType> positiveEffects (FileConfiguration config) {
         List<String> configEffects = config.getStringList("PositiveEffects");
         return configEffects.stream().map(configEffect -> {

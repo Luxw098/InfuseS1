@@ -19,6 +19,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import uk.sleepylux.infuseS1.Main;
+import uk.sleepylux.infuseS1.recipes.FreeKillRecipe;
 import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 
@@ -34,6 +35,7 @@ public class PlayerKill implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
+        plugin.getLogger().info("PlayerKill Called");
         FileConfiguration config = plugin.getConfig();
 
         Player victim = event.getEntity();
@@ -58,12 +60,15 @@ public class PlayerKill implements Listener {
             List<PotionEffectType> positiveEffectMask = Effects.positiveEffects(config).stream()
                     .filter(positiveEffectType -> !currentEffects.stream()
                             .map(PotionEffect::getType).toList().contains(positiveEffectType)).toList();
+            if (!positiveEffectMask.isEmpty()) {
+                PotionEffectType positiveEffectType = positiveEffectMask.get(random.nextInt(positiveEffectMask.size()));
 
-            PotionEffectType positiveEffectType = positiveEffectMask.get(random.nextInt(positiveEffectMask.size()));
-
-            PotionEffect positiveEffect = new PotionEffect(positiveEffectType, PotionEffect.INFINITE_DURATION, 1, true, false);
-            attacker.addPotionEffect(positiveEffect);
-            attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You have been awarded " + ChatColor.GREEN + positiveEffect.getType() + ChatColor.GOLD + " for your kill!");
+                PotionEffect positiveEffect = new PotionEffect(positiveEffectType, PotionEffect.INFINITE_DURATION, 1, true, false);
+                attacker.addPotionEffect(positiveEffect);
+                attacker.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You have been awarded " + ChatColor.GREEN + positiveEffect.getType() + ChatColor.GOLD + " for your kill!");
+            } else {
+                victim.getWorld().dropItem(victim.getLocation(), FreeKillRecipe.getFreeKillItem(plugin.modelID));
+            }
         }
 
         List<PotionEffect> victimEffectMap = victim.getActivePotionEffects().stream()
@@ -71,10 +76,9 @@ public class PlayerKill implements Listener {
         List<PotionEffect> attackerEffectMap = attacker.getActivePotionEffects().stream()
                 .filter(potionEffect -> potionEffect.getDuration() == -1).toList();
 
-        Map<String, List<PotionEffect>> datatable = DataTable.get(config);
+        Map<String, List<PotionEffect>> datatable = DataTable.get(plugin);
         datatable.put(victim.getUniqueId().toString(), victimEffectMap);
         datatable.put(attacker.getUniqueId().toString(), attackerEffectMap);
-        DataTable.set(config, datatable);
-        plugin.saveConfig();
+        DataTable.set(plugin, datatable);
     }
 }

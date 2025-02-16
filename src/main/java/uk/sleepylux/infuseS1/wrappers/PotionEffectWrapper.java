@@ -3,7 +3,6 @@ package uk.sleepylux.infuseS1.wrappers;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class PotionEffectWrapper {
     private final String type;  // Store as String instead of PotionEffectType
