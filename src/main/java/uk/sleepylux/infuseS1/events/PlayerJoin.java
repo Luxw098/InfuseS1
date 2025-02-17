@@ -7,6 +7,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import uk.sleepylux.infuseS1.Main;
 import uk.sleepylux.infuseS1.registry.DataTable;
+import uk.sleepylux.infuseS1.registry.Effects;
+import uk.sleepylux.infuseS1.utility.EffectRandomizer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +22,15 @@ public class PlayerJoin implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        plugin.getLogger().info("PlayerJoin Called");
         String UUID = event.getPlayer().getUniqueId().toString();
         Map<String, List<PotionEffect>> datatable = DataTable.get(plugin);
-        if (!datatable.containsKey(UUID)) datatable.put(UUID, new ArrayList<>());
+        if (!datatable.containsKey(UUID)) {
+            List<PotionEffect> effects = new ArrayList<>();
+            PotionEffect randomPositiveEffect = EffectRandomizer.getRandomEffect(Effects.positiveEffects(plugin.getConfig()).stream().toList(),
+                    List.of(), true);
+            effects.add(randomPositiveEffect);
+            datatable.put(UUID, effects);
+        }
         DataTable.set(plugin, datatable);
     }
 }
