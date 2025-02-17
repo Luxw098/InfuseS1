@@ -8,8 +8,8 @@ You should have received a copy of the GNU General Public License along with Inf
 package uk.sleepylux.infuseS1;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import uk.sleepylux.infuseS1.recipes.FreeKillRecipe;
 import uk.sleepylux.infuseS1.events.*;
+import uk.sleepylux.infuseS1.recipes.MysteryEffectRecipe;
 import uk.sleepylux.infuseS1.recipes.ReviveToolRecipe;
 import uk.sleepylux.infuseS1.recipes.UpgradeTokenRecipe;
 
@@ -26,8 +26,9 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerKill(this), this);
         getServer().getPluginManager().registerEvents(new MilkDrink(this), this);
         getServer().getPluginManager().registerEvents(new UseItem(this), this);
+        getServer().getPluginManager().registerEvents(new InventoryClick(this), this);
 
-        FreeKillRecipe.setupRecipe(this);
+        MysteryEffectRecipe.setupRecipe(this);
         ReviveToolRecipe.setupRecipe(this);
         UpgradeTokenRecipe.setupRecipe(this);
     }

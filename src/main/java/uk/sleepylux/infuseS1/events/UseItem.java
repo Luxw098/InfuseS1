@@ -25,10 +25,16 @@ public class UseItem implements Listener {
         if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID) return;
 
         event.setCancelled(true);
+
+        ItemStack itemInuse = event.getItem();
+        if (itemInuse.getAmount() > 1) itemInuse.setAmount(itemInuse.getAmount()-1);
+        else item.setType(Material.AIR);
+
         switch (item.getType()) {
             case Material.NETHER_STAR -> MysteryEffectRecipe.onUse(plugin ,event);
             case Material.BEACON -> ReviveToolRecipe.onUse(plugin, event);
             case Material.SUNFLOWER -> UpgradeTokenRecipe.onUse(plugin, event);
         }
+
     }
 }

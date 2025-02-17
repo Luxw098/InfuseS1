@@ -12,12 +12,12 @@ import java.util.*;
 
 public final class DataTable {
     private static final Gson gson = new Gson();
+    private static final Type type = new TypeToken<Map<String, List<PotionEffectWrapper>>>() {}.getType();
 
     @NonNull
     public static Map<String, List<PotionEffect>> get(Main plugin) {
-        Type type = new TypeToken<Map<String, List<PotionEffectWrapper>>>() {}.getType();
         String encodedDatatable = plugin.getConfig().getString("DataTable");
-        if (encodedDatatable == null) encodedDatatable = Base64.getEncoder().encodeToString(gson.toJson("{}").getBytes());
+        if (encodedDatatable == null) encodedDatatable = Base64.getEncoder().encodeToString("{}".getBytes());
         String byteTableString = new String(Base64.getDecoder().decode(encodedDatatable));
 
         Map<String, List<PotionEffectWrapper>> datatableRaw = gson.fromJson(byteTableString, type);
@@ -33,7 +33,6 @@ public final class DataTable {
     }
 
     public static void set(Main plugin, Map<String, List<PotionEffect>> datatable) {
-        Type type = new TypeToken<Map<String, List<PotionEffectWrapper>>>() {}.getType();
         Map<String, List<PotionEffectWrapper>> wrapper = new HashMap<>();
         for (Map.Entry<String, List<PotionEffect>> entry : datatable.entrySet()) {
             List<PotionEffectWrapper> effectWrappers = new ArrayList<>();
@@ -45,6 +44,5 @@ public final class DataTable {
         String encodedString = Base64.getEncoder().encodeToString(parsedMap.getBytes());
         plugin.getConfig().set("DataTable", encodedString);
         plugin.saveConfig();
-        plugin.getLogger().info("Updated config");
     }
 }
