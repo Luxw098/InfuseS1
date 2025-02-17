@@ -1,4 +1,4 @@
-package uk.sleepylux.infuseS1.wrappers;
+package uk.sleepylux.infuseS1.utility;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;

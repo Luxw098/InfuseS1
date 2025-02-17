@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import org.bukkit.potion.PotionEffect;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import uk.sleepylux.infuseS1.Main;
-import uk.sleepylux.infuseS1.wrappers.PotionEffectWrapper;
+import uk.sleepylux.infuseS1.utility.PotionEffectWrapper;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -15,7 +15,6 @@ public final class DataTable {
 
     @NonNull
     public static Map<String, List<PotionEffect>> get(Main plugin) {
-
         Type type = new TypeToken<Map<String, List<PotionEffectWrapper>>>() {}.getType();
         String encodedDatatable = plugin.getConfig().getString("DataTable");
         if (encodedDatatable == null) encodedDatatable = Base64.getEncoder().encodeToString(gson.toJson("{}").getBytes());
