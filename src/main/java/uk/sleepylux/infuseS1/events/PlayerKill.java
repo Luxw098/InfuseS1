@@ -8,7 +8,6 @@ You should have received a copy of the GNU General Public License along with Inf
 package uk.sleepylux.infuseS1.events;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

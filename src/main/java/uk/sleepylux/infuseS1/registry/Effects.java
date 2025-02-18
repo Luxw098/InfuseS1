@@ -11,7 +11,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry.SimpleRegistry;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.potion.PotionType;
 
 import java.util.*;
 
