@@ -7,8 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import uk.sleepylux.infuseS1.Main;
@@ -32,21 +32,13 @@ public class InventoryClick implements Listener {
         if (item == null || item.getType().isAir()) return;
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() == plugin.modelID
-            || meta.getCustomModelData() != plugin.modelID) return;
-
-        event.setCancelled(true);
+        if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID) return;
 
         HumanEntity player = event.getWhoClicked();
 
-        ItemStack itemInUse = player.getItemInUse();
-        assert itemInUse != null;
-
-        if (itemInUse.getAmount() > 1) itemInUse.setAmount(itemInUse.getAmount()-1);
-        else item.setType(Material.AIR);
-
         switch (event.getView().getTitle().toLowerCase().trim()) {
             case "revive a player":
+                event.setCancelled(true);
                 List<UUID> bantable = BanTable.get(plugin);
                 OfflinePlayer revivePlayer = ((SkullMeta) meta).getOwningPlayer();
 
@@ -57,11 +49,15 @@ public class InventoryClick implements Listener {
                 Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.AQUA + revivePlayer.getName() + ChatColor.GOLD + " has been revived!");
                 break;
             case "upgrade an effect":
+                event.setCancelled(true);
                 Map<String, List<PotionEffect>> datatable = DataTable.get(plugin);
                 List<PotionEffect> effects = datatable.get(player.getUniqueId().toString());
 
-                PotionEffectType effect = ((PotionMeta) meta).getBasePotionType().getPotionEffects().getFirst().getType();
-                PotionEffect newEffect = new PotionEffect(effect, -1, 2, true, false);
+                NamespacedKey namespacedKey = new NamespacedKey(plugin, "potion_effect_meta");
+                PotionEffectType effect = Registry.SimpleRegistry.EFFECT.get(
+                        NamespacedKey.fromString(meta.getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING))
+                );
+                PotionEffect newEffect = new PotionEffect(effect, -1, 1, true, false);
 
                 effects.removeIf(potionEffect -> potionEffect.getType() == newEffect.getType());
                 effects.add(newEffect);
@@ -74,6 +70,11 @@ public class InventoryClick implements Listener {
             default:
 
         }
+
+        player.closeInventory();
+
+        ItemStack itemInuse = player.getInventory().getItemInMainHand();
+        itemInuse.setAmount(itemInuse.getAmount()-1);
 
     }
 }

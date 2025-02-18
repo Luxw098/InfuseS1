@@ -27,6 +27,7 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MilkDrink(this), this);
         getServer().getPluginManager().registerEvents(new UseItem(this), this);
         getServer().getPluginManager().registerEvents(new InventoryClick(this), this);
+        getServer().getPluginManager().registerEvents(new InvulnerableItems(this), this);
 
         MysteryEffectRecipe.setupRecipe(this);
         ReviveToolRecipe.setupRecipe(this);

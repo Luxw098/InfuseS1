@@ -16,7 +16,9 @@ import uk.sleepylux.infuseS1.Main;
 import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 import uk.sleepylux.infuseS1.utility.EffectRandomizer;
+import uk.sleepylux.infuseS1.utility.Translator;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
@@ -63,19 +65,23 @@ public final class MysteryEffectRecipe {
         if (randomNegativeEffect != null) {
             effects.removeIf(effect -> effect.getType() == randomNegativeEffect.getType());
             player.removePotionEffect(randomNegativeEffect.getType());
-            player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Well done, You no longer have " +
-                    ChatColor.RED + randomNegativeEffect.getType().getKey().toString().split(":")[1] + " from getting a kill!");
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You no longer have " +
+                    ChatColor.RED + randomNegativeEffect.getType().getKey().toString().split(":")[1] +
+                    ChatColor.GOLD + " from redeeming a Mystery Effect!");
         } else {
             PotionEffect randomPositiveEffect = EffectRandomizer.getRandomEffect(Effects.positiveEffects(config).stream().toList(),
                     effects.stream().map(PotionEffect::getType).toList(), false);
             if (randomPositiveEffect != null) {
                 effects.add(randomPositiveEffect);
                 player.addPotionEffect(randomPositiveEffect);
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Congrats, you have been awarded " +
-                        ChatColor.RED + randomPositiveEffect.getType().getKey().toString().split(":")[1] + " for your kill!");
-            } else
-                player.getWorld().dropItem(player.getLocation(), MysteryEffectRecipe.getMysteryEffectItem(plugin.modelID));
+                player.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You have been awarded " +
+                        ChatColor.GREEN + Translator.getDisplayNameFromTranslationKey(randomPositiveEffect.getType().getTranslationKey()) +
+                        ChatColor.GOLD + " from using a Mystery Effect");
+            } else player.getWorld().dropItem(player.getLocation(), MysteryEffectRecipe.getMysteryEffectItem(plugin.modelID));
         }
+
+        ItemStack itemInuse = player.getInventory().getItemInMainHand();
+        itemInuse.setAmount(itemInuse.getAmount()-1);
 
         datatable.put(player.getUniqueId().toString(), effects);
         DataTable.set(plugin, datatable);

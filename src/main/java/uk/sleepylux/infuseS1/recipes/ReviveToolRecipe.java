@@ -52,7 +52,7 @@ public final class ReviveToolRecipe {
 
         List<UUID> bantable = BanTable.get(plugin);
 
-        Inventory gui = Bukkit.createInventory(null, 56, "Revive A Player");
+        Inventory gui = Bukkit.createInventory(null, 54, "Revive A Player");
 
         for (UUID uuid : bantable) {
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);

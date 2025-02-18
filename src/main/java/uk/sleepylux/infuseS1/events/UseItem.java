@@ -3,6 +3,7 @@ package uk.sleepylux.infuseS1.events;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,21 +20,18 @@ public class UseItem implements Listener {
 
     @EventHandler
     public void onItemUse(PlayerInteractEvent event) {
-        ItemStack item = event.getItem();
-        if (item == null) return;
+        ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID) return;
+        if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID
+            || (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK)) return;
 
         event.setCancelled(true);
-
-        ItemStack itemInuse = event.getItem();
-        if (itemInuse.getAmount() > 1) itemInuse.setAmount(itemInuse.getAmount()-1);
-        else item.setType(Material.AIR);
 
         switch (item.getType()) {
             case Material.NETHER_STAR -> MysteryEffectRecipe.onUse(plugin ,event);
             case Material.BEACON -> ReviveToolRecipe.onUse(plugin, event);
             case Material.SUNFLOWER -> UpgradeTokenRecipe.onUse(plugin, event);
+
         }
 
     }

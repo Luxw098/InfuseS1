@@ -20,6 +20,7 @@ import uk.sleepylux.infuseS1.registry.BanTable;
 import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 import uk.sleepylux.infuseS1.utility.EffectRandomizer;
+import uk.sleepylux.infuseS1.utility.Translator;
 
 import java.time.Duration;
 import java.util.*;
@@ -46,14 +47,16 @@ public class PlayerDeath implements Listener {
         if (randomPositiveEffect != null) {
             currentEffects.removeIf(potionEffect -> potionEffect.getType() == randomPositiveEffect.getType());
             deadPlayer.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You lost " +
-                    ChatColor.GREEN + randomPositiveEffect.getType().getKey().toString().split(":")[1]);
+                    ChatColor.GREEN + Translator.getDisplayNameFromTranslationKey(randomPositiveEffect.getType().getTranslationKey()) +
+                    ChatColor.GOLD + " from dying" );
         } else {
             PotionEffect randomNegativeEffect = EffectRandomizer.getRandomEffect(Effects.negativeEffects(config).stream().toList(),
                     currentEffects.stream().map(PotionEffect::getType).toList(), false);
             if (randomNegativeEffect != null) {
                 currentEffects.add(randomNegativeEffect);
-                deadPlayer.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You gained" +
-                        ChatColor.RED + randomNegativeEffect.getType().getKey().toString().split(":")[1] + " from dying");
+                deadPlayer.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "You have been given " +
+                        ChatColor.RED + randomNegativeEffect.getType().getKey().toString().split(":")[1] +
+                        ChatColor.GOLD + " due to your death");
             } else {
                 deadPlayer.ban(ChatColor.RED + "You died with all possible negative effects, You are eliminated.\n"
                         + ChatColor.BLUE + "Maybe try a revive beacon?", Duration.ofDays(999), "");

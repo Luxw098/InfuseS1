@@ -11,10 +11,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry.SimpleRegistry;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public final class Effects {
     public static Collection<PotionEffectType> positiveEffects (FileConfiguration config) {
@@ -35,4 +34,18 @@ public final class Effects {
         }).filter(Objects::nonNull).toList();
     }
 
+    public static boolean isUpgradable(PotionEffectType effect) {
+        List<PotionEffectType> nonUpgradable = List.of(
+                PotionEffectType.INVISIBILITY,
+                PotionEffectType.NIGHT_VISION,
+                PotionEffectType.FIRE_RESISTANCE,
+                PotionEffectType.WATER_BREATHING,
+                PotionEffectType.BLINDNESS,
+                PotionEffectType.NAUSEA,
+                PotionEffectType.HEALTH_BOOST,
+                PotionEffectType.SATURATION,
+                PotionEffectType.DARKNESS
+        );
+        return !nonUpgradable.contains(effect);
+    }
 }

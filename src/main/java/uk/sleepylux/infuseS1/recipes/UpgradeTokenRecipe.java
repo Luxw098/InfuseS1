@@ -3,7 +3,6 @@ package uk.sleepylux.infuseS1.recipes;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -12,10 +11,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionType;
 import uk.sleepylux.infuseS1.Main;
 import uk.sleepylux.infuseS1.registry.DataTable;
+import uk.sleepylux.infuseS1.registry.Effects;
+import uk.sleepylux.infuseS1.utility.Translator;
 
 import java.util.List;
 import java.util.Map;
@@ -61,14 +62,18 @@ public final class UpgradeTokenRecipe {
 
         Inventory gui = Bukkit.createInventory(null, 9, "Upgrade An Effect");
 
-        for (PotionEffect effect : effects) {
+        for (PotionEffect effect : effects.stream().filter(potionEffect ->
+                potionEffect.getAmplifier() == 0 && Effects.isUpgradable(potionEffect.getType())).toList()) {
             ItemStack item = new ItemStack(Material.POTION);
             PotionMeta meta = (PotionMeta) item.getItemMeta();
             if (meta == null) meta = (PotionMeta) Bukkit.getItemFactory().getItemMeta(Material.POTION);
             assert meta != null;
 
-            meta.setDisplayName("Upgrade " + effect.getType().getKey().toString().split(":")[1]);
-            meta.setBasePotionType(Registry.SimpleRegistry.POTION.get(effect.getType().getKey()));
+            meta.setDisplayName("Upgrade " + Translator.getDisplayNameFromTranslationKey(effect.getType().getTranslationKey()));
+            meta.setBasePotionType(Translator.getPotionTypeFromEffectType(effect.getType()));
+
+            NamespacedKey namespacedKey = new NamespacedKey(plugin, "potion_effect_meta");
+            meta.getPersistentDataContainer().set(namespacedKey, PersistentDataType.STRING, effect.getType().getKey().toString());
             meta.setCustomModelData(plugin.modelID);
 
             item.setItemMeta(meta);

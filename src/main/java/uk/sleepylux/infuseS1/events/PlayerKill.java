@@ -22,6 +22,7 @@ import uk.sleepylux.infuseS1.recipes.MysteryEffectRecipe;
 import uk.sleepylux.infuseS1.registry.DataTable;
 import uk.sleepylux.infuseS1.registry.Effects;
 import uk.sleepylux.infuseS1.utility.EffectRandomizer;
+import uk.sleepylux.infuseS1.utility.Translator;
 
 import java.util.List;
 import java.util.Map;
@@ -48,20 +49,22 @@ public class PlayerKill implements Listener {
         List<PotionEffect> effects = datatable.get(killer.getUniqueId().toString());
 
         PotionEffect randomNegativeEffect = EffectRandomizer.getRandomEffect(Effects.negativeEffects(config).stream().toList(),
-                effects.stream().map(PotionEffect::getType).toList(), false);
+                effects.stream().map(PotionEffect::getType).toList(), true);
         if (randomNegativeEffect != null) {
             effects.removeIf(effect -> effect.getType() == randomNegativeEffect.getType());
             killer.removePotionEffect(randomNegativeEffect.getType());
             killer.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Well done, You no longer have " +
-                    ChatColor.RED + randomNegativeEffect.getType().getKey().toString().split(":")[1] + " from getting a kill!");
+                    ChatColor.RED + randomNegativeEffect.getType().getKey().toString().split(":")[1] +
+                    ChatColor.GOLD + " from getting a kill!");
         } else {
             PotionEffect randomPositiveEffect = EffectRandomizer.getRandomEffect(Effects.positiveEffects(config).stream().toList(),
-                    effects.stream().map(PotionEffect::getType).toList(), true);
+                    effects.stream().map(PotionEffect::getType).toList(), false);
             if (randomPositiveEffect != null) {
                 effects.add(randomPositiveEffect);
                 killer.addPotionEffect(randomPositiveEffect);
                 killer.sendMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.GOLD + "Congrats, you have been awarded " +
-                        ChatColor.RED + randomPositiveEffect.getType().getKey().toString().split(":")[1] + " for your kill!");
+                        ChatColor.GREEN + Translator.getDisplayNameFromTranslationKey(randomPositiveEffect.getType().getTranslationKey()) +
+                        ChatColor.GOLD + " for your kill!");
             } else killer.getWorld().dropItem(victim.getLocation(), MysteryEffectRecipe.getMysteryEffectItem(plugin.modelID));
         }
 
