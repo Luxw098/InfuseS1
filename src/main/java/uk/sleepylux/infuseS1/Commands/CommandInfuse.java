@@ -20,10 +20,6 @@ public class CommandInfuse implements CommandExecutor {
         if (!(sender instanceof Player player)) return true;
 
         String ghLink = "https://github.com/Luxw098/InfuseS1";
-//        player.sendMessage( Component.text(ChatColor.LIGHT_PURPLE + "[InfuseS1 Information]\n" +
-//                ChatColor.GOLD + "Source: " + Component.text("Github Page").clickEvent(ClickEvent.openUrl(ghLink)) + "\n" +
-//                ChatColor.RED + "Report Issues: " + Component.text("Github Page").clickEvent(ClickEvent.openUrl(ghLink + "/issues/new")) + "\n" +
-//                ChatColor.BLUE + "Contact @ Discord: TirednHigh");
 
         TextComponent message = new TextComponent("[InfuseS1 Information]\n");
         message.setColor(ChatColor.LIGHT_PURPLE);
