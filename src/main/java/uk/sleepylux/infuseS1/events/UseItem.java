@@ -34,7 +34,7 @@ public class UseItem implements Listener {
         event.setCancelled(true);
 
         switch (item.getType()) {
-            case Material.NETHER_STAR -> MysteryEffectRecipe.onUse(plugin ,event);
+            case Material.NETHER_STAR -> MysteryEffectRecipe.onUse(plugin, event);
             case Material.BEACON -> ReviveToolRecipe.onUse(plugin, event);
             case Material.SUNFLOWER -> UpgradeTokenRecipe.onUse(plugin, event);
 

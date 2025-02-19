@@ -7,11 +7,15 @@ You should have received a copy of the GNU General Public License along with Inf
 
 package uk.sleepylux.infuseS1;
 
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import uk.sleepylux.infuseS1.Commands.CommandInfuse;
 import uk.sleepylux.infuseS1.events.*;
 import uk.sleepylux.infuseS1.recipes.MysteryEffectRecipe;
 import uk.sleepylux.infuseS1.recipes.ReviveToolRecipe;
 import uk.sleepylux.infuseS1.recipes.UpgradeTokenRecipe;
+
+import java.util.Objects;
 
 public final class Main extends JavaPlugin {
     public int modelID = 948193;
@@ -32,6 +36,9 @@ public final class Main extends JavaPlugin {
         MysteryEffectRecipe.setupRecipe(this);
         ReviveToolRecipe.setupRecipe(this);
         UpgradeTokenRecipe.setupRecipe(this);
+
+        Objects.requireNonNull(this.getCommand("infuse")).setExecutor(new CommandInfuse());
+
     }
 
     @Override

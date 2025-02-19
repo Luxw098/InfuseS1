@@ -7,12 +7,19 @@ You should have received a copy of the GNU General Public License along with Inf
 package uk.sleepylux.infuseS1.events;
 
 import org.bukkit.*;
+import org.bukkit.block.Container;
+import org.bukkit.block.Skull;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -34,28 +41,38 @@ public class InventoryClick implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         ItemStack item = event.getCurrentItem();
-
         if (item == null || item.getType().isAir()) return;
-
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID) return;
 
-        HumanEntity player = event.getWhoClicked();
+        HumanEntity humanEntity = event.getWhoClicked();
+        if (!(humanEntity instanceof Player player)) return;
+
+        PlayerInventory playerInv = player.getInventory();
+        ItemStack itemInuse = playerInv.getItemInMainHand();
 
         switch (event.getView().getTitle().toLowerCase().trim()) {
             case "revive a player":
                 event.setCancelled(true);
+                if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID) return;
+                if (!(meta instanceof SkullMeta skullMeta)) return;
+
                 List<UUID> bantable = BanTable.get(plugin);
-                OfflinePlayer revivePlayer = ((SkullMeta) meta).getOwningPlayer();
+                OfflinePlayer revivePlayer = skullMeta.getOwningPlayer();
 
                 Bukkit.getBanList(BanList.Type.NAME).pardon(revivePlayer.getName());
                 bantable.remove(revivePlayer.getUniqueId());
                 BanTable.set(plugin, bantable);
 
                 Bukkit.broadcastMessage(ChatColor.LIGHT_PURPLE + "[InfuseS1] " + ChatColor.AQUA + revivePlayer.getName() + ChatColor.GOLD + " has been revived!");
+                player.closeInventory();
+                player.updateInventory();
+                itemInuse.setAmount(itemInuse.getAmount()-1);
                 break;
             case "upgrade an effect":
                 event.setCancelled(true);
+                if (meta == null || !meta.hasCustomModelData() || meta.getCustomModelData() != plugin.modelID) return;
+                if (!(meta instanceof PotionMeta)) return;
+
                 Map<String, List<PotionEffect>> datatable = DataTable.get(plugin);
                 List<PotionEffect> effects = datatable.get(player.getUniqueId().toString());
 
@@ -72,15 +89,12 @@ public class InventoryClick implements Listener {
 
                 datatable.put(player.getUniqueId().toString(), effects);
                 DataTable.set(plugin, datatable);
+                player.closeInventory();
+                player.updateInventory();
+                itemInuse.setAmount(itemInuse.getAmount()-1);
                 break;
             default:
-
+                break;
         }
-
-        player.closeInventory();
-
-        ItemStack itemInuse = player.getInventory().getItemInMainHand();
-        itemInuse.setAmount(itemInuse.getAmount()-1);
-
     }
 }
