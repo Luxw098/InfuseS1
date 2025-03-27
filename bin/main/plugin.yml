@@ -1,0 +1,13 @@
+name: InfuseS1
+version: '1.2'
+main: uk.sleepylux.infuseS1.Main
+api-version: '1.21'
+prefix: InfuseS1
+authors: [ TirednHigh ]
+description: Infuse S1 Remake for your enjoyment!
+commands:
+  infuse:
+    description: Information about the InfuseS1 Plugin!
+    usage: "Usage: /InfuseS1"
+    aliases: infuseS1
+
